@@ -75,27 +75,25 @@
         <!-- 相机预览区域 -->
         <div id="camera-preview" class="absolute inset-0 flex items-center justify-center">
             <img src="https://picsum.photos/1920/1080" alt="相机预览" class="w-full h-full object-cover opacity-90">
-            <!-- 水印 -->
-            <div class="absolute bottom-6 right-6 text-white text-opacity-60 text-sm">my4cuts</div>
-            <!-- 切换摄像头按钮 -->
-            <button id="switch-camera-btn" class="absolute bottom-20 right-6 text-white text-2xl hover:text-gray-300 transition-colors duration-300">
-                <i class="fa fa-refresh" aria-hidden="true"></i>
-            </button>
         </div>
+
+        <!-- 品牌标识 -->
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white text-opacity-40 text-xs">my4cuts</div>
 
         <!-- 顶部状态栏 -->
-        <div class="absolute top-0 left-0 right-0 flex justify-between p-6 text-white text-2xl">
+        <div class="absolute top-0 left-0 right-0 flex justify-between items-center p-6 text-white text-2xl">
             <button id="back-btn" class="bg-white bg-opacity-20 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-30 transition-all duration-300 mr-4">
-                返回
+                <
             </button>
-            <button id="settings-btn" class="hover:text-gray-300 transition-colors duration-300">
+            <div id="dot-indicator" class="flex space-x-2 absolute left-1/2 transform -translate-x-1/2">
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+            </div>
+            <button id="settings-btn" class="hover:text-gray-300 transition-colors duration-300 absolute right-6">
                 <i class="fa fa-cog" aria-hidden="true"></i>
             </button>
-        </div>
-
-        <!-- 中部拍摄进度提示 -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-4xl font-bold bg-black bg-opacity-50 px-6 py-2 rounded-full">
-            <span id="capture-count">0/4</span>
         </div>
 
         <!-- 底部操作栏 -->
@@ -106,7 +104,9 @@
             <button id="shutter-btn" class="w-20 h-20 rounded-full bg-white flex items-center justify-center hover:bg-gray-200 transition-colors duration-300">
                 <div class="w-16 h-16 rounded-full bg-black"></div>
             </button>
-            <div class="w-12"></div> <!-- 占位元素，保持对称 -->
+            <button id="switch-camera-btn" class="text-white text-3xl hover:text-gray-300 transition-colors duration-300">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
         </div>
 
         <!-- 返回按钮 (已移除，合并到顶部状态栏) -->
@@ -219,14 +219,6 @@
                 // 重置计数
                 currentCount = 0;
                 updateCaptureCount();
-
-                // 重新设置2秒跳转
-                setTimeout(() => {
-                    splashScreen.classList.add('hidden');
-                    permissionView.classList.remove('hidden');
-                    permissionView.classList.remove('opacity-0');
-                    permissionView.classList.add('permission-animation');
-                }, 2000);
             });
 
             // 设置按钮点击事件
@@ -265,6 +257,24 @@
                     capturePhoto();
                 }
             });
+
+            // 初始化圆点指示器
+            updateCaptureCount();
+
+            // 实现从顶部向下轻滑呼出设置面板
+            let startY = 0;
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            }, false);
+
+            document.addEventListener('touchmove', function(e) {
+                if (startY < 50) { // 只在顶部区域响应
+                    const currentY = e.touches[0].clientY;
+                    if (currentY - startY > 50) { // 下滑超过50px
+                        settingsPanel.classList.remove('hidden');
+                    }
+                }
+            }, false);
 
             // 开始倒计时
             function startCountdown() {
@@ -315,9 +325,19 @@
                 }
             }
 
-            // 更新拍摄计数
+            // 更新拍摄计数和圆点指示器
             function updateCaptureCount() {
-                captureCount.textContent = `${currentCount}/4`;
+                // 更新圆点指示器
+                const dots = document.querySelectorAll('#dot-indicator span');
+                dots.forEach((dot, index) => {
+                    if (index < currentCount) {
+                        dot.classList.remove('opacity-40');
+                        dot.classList.add('opacity-100');
+                    } else {
+                        dot.classList.remove('opacity-100');
+                        dot.classList.add('opacity-40');
+                    }
+                });
             }
 
             // 模拟闪光灯效果
