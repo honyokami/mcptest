@@ -68,7 +68,7 @@ struct PermissionView: View {
                         let photoPermissionKey = "PhotoPermissionDenied"
                         UserDefaults.standard.set(true, forKey: cameraPermissionKey)
                         UserDefaults.standard.set(true, forKey: photoPermissionKey)
-                        
+
                         // 跳转到主相机页面
                         withAnimation(.easeInOut(duration: 0.5)) {
                             showPermissionView = false
@@ -112,21 +112,21 @@ struct PermissionView: View {
         // 记录权限状态的键
         let cameraPermissionKey = "CameraPermissionDenied"
         let photoPermissionKey = "PhotoPermissionDenied"
-        
+
         // 先请求相机权限
         AVCaptureDevice.requestAccess(for: .video) { cameraGranted in
             // 记录相机权限状态
             if !cameraGranted {
                 UserDefaults.standard.set(true, forKey: cameraPermissionKey)
             }
-            
+
             // 请求相册权限
             PHPhotoLibrary.requestAuthorization { photoStatus in
                 // 记录相册权限状态
                 if photoStatus != .authorized {
                     UserDefaults.standard.set(true, forKey: photoPermissionKey)
                 }
-                
+
                 // 无论权限是否授予，都跳转到主相机页面
                 DispatchQueue.main.async {
                     withAnimation(.easeInOut(duration: 0.5)) {

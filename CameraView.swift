@@ -458,23 +458,23 @@ struct CameraPreview: UIViewRepresentable {
 extension CameraView: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
-            DispatchQueue.main.async {_
+            DispatchQueue.main.async {
                 self.errorMessage = "拍照失败: \(error.localizedDescription)"
                 self.showError = true
             }
             return
         }
 
-        guard let imageData = photo.fileDataRepresentation() else {_
-            DispatchQueue.main.async {_
+        guard let imageData = photo.fileDataRepresentation() else {
+            DispatchQueue.main.async {
                 self.errorMessage = "无法处理照片数据"
                 self.showError = true
             }
             return
         }
 
-        if let image = UIImage(data: imageData) {_
-            DispatchQueue.main.async {_
+        if let image = UIImage(data: imageData) {
+            DispatchQueue.main.async {
                 self.capturedImage = image
                 self.showImageEditor = true
             }

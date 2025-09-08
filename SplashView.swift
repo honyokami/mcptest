@@ -1,7 +1,8 @@
-//  SplashView.swift
-//  my4cuts
 //
-//  Created by AI Assistant on 2025/9/7.
+//  SplashView.swift
+//  my4cuts001
+//
+//  Created by 黄炫凱 on 2025/9/4.
 //
 
 import SwiftUI
@@ -45,7 +46,7 @@ struct SplashView: View {
                 opacity = 1.0
             }
 
-            // 2秒后跳转检查权限
+            // 2秒后跳转
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showPermissionView = true
