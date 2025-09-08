@@ -32,6 +32,11 @@
             .permission-animation {
                 animation: fadeIn 0.5s ease-in-out forwards;
             }
+            .glass-effect {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                background-color: rgba(255, 255, 255, 0.1);
+            }
         }
 
         @keyframes fadeIn {
@@ -41,6 +46,33 @@
             to {
                 opacity: 1;
             }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-100%);
+            }
+        }
+
+        .settings-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .settings-panel.active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -119,36 +151,45 @@
             <span id="countdown-value" class="text-white text-9xl font-bold">3</span>
         </div>
 
-        <!-- 设置面板 (默认隐藏) -->
-        <div id="settings-panel" class="hidden absolute inset-0 bg-black bg-opacity-90 flex flex-col p-6 text-white">
+        <!-- 设置面板 (顶部下滑毛玻璃效果半透明面板，实现倒计时循环切换选项，并修改按钮文本) -->
+        <div id="settings-panel" class="settings-panel absolute top-0 left-0 right-0 glass-effect border-b border-white border-opacity-20 flex flex-col p-6 text-white z-50 max-h-[80vh] overflow-y-auto">
+            <!-- 拖动指示器 -->
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-1.5 bg-white bg-opacity-50 rounded-full"></div>
+            </div>
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-2xl font-bold">设置</h3>
-                <button id="close-settings-btn" class="text-2xl hover:text-gray-300 transition-colors duration-300">
-                    <i class="fa fa-times" aria-hidden="true"></i>
+                <button id="close-settings-btn" class="bg-primary hover:bg-opacity-80 text-white py-2 px-4 rounded-full text-sm font-medium transition-all duration-300">
+                    完成
                 </button>
             </div>
-            <div class="flex flex-col space-y-6">
-                <div class="flex justify-between items-center">
-                    <span class="text-lg">启用倒计时</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="countdown-toggle" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
+            <div class="flex flex-col space-y-8">
+                <div class="flex flex-col space-y-2">
+                    <span class="text-lg">倒计时</span>
+                    <div class="flex space-x-3">
+                        <button id="countdown-off-btn" class="bg-white text-primary py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-90 transition-all duration-300">
+                            关闭
+                        </button>
+                        <button id="countdown-3s-btn" class="bg-gray-700 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-primary transition-all duration-300">
+                            3s
+                        </button>
+                        <button id="countdown-6s-btn" class="bg-gray-700 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-primary transition-all duration-300">
+                            6s
+                        </button>
+                    </div>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-lg">倒计时时间</span>
-                    <select id="countdown-time" class="bg-gray-700 text-white px-3 py-2 rounded-md">
-                        <option value="3">3秒</option>
-                        <option value="5">5秒</option>
-                        <option value="10">10秒</option>
-                    </select>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-lg">启用快门声</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="shutter-sound-toggle" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
+                    <span class="text-lg">关闭快门声</span>
+                    <div class="flex items-center space-x-3">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="shutter-sound-toggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                        <div class="relative w-12 h-6 flex items-center justify-center">
+                            <span class="text-xs font-medium transition-opacity duration-300 peer-checked:opacity-0 absolute left-0 right-0 text-center" id="off-text">OFF</span>
+                            <span class="text-xs font-medium transition-opacity duration-300 opacity-0 peer-checked:opacity-100 absolute left-0 right-0 text-center" id="on-text">ON</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -174,15 +215,18 @@
             const captureCount = document.getElementById('capture-count');
             const settingsPanel = document.getElementById('settings-panel');
             const closeSettingsBtn = document.getElementById('close-settings-btn');
-            const countdownToggle = document.getElementById('countdown-toggle');
-            const countdownTime = document.getElementById('countdown-time');
             const cameraPreview = document.getElementById('camera-preview');
             const previewImage = cameraPreview.querySelector('img');
+            const shutterSoundToggle = document.getElementById('shutter-sound-toggle');
+            const countdownOffBtn = document.getElementById('countdown-off-btn');
+            const countdown3sBtn = document.getElementById('countdown-3s-btn');
+            const countdown6sBtn = document.getElementById('countdown-6s-btn');
 
             // 状态变量
             let currentCount = 0;
             let isFrontCamera = false;
             let countdownInterval;
+            let countdownMode = 'off'; // 'off', '3s', '6s'
 
             // 2秒后自动跳转到权限请求页，添加平滑过渡
             setTimeout(() => {
@@ -223,12 +267,12 @@
 
             // 设置按钮点击事件
             settingsBtn.addEventListener('click', function() {
-                settingsPanel.classList.remove('hidden');
+                settingsPanel.classList.add('active');
             });
 
             // 关闭设置按钮点击事件
             closeSettingsBtn.addEventListener('click', function() {
-                settingsPanel.classList.add('hidden');
+                settingsPanel.classList.remove('active');
             });
 
             // 切换相机按钮点击事件
@@ -247,11 +291,51 @@
                 alert('相册功能将在这里实现');
             });
 
+            // 倒计时按钮点击事件
+            countdownOffBtn.addEventListener('click', function() {
+                countdownMode = 'off';
+                updateCountdownButtons();
+            });
+
+            countdown3sBtn.addEventListener('click', function() {
+                countdownMode = '3s';
+                updateCountdownButtons();
+            });
+
+            countdown6sBtn.addEventListener('click', function() {
+                countdownMode = '6s';
+                updateCountdownButtons();
+            });
+
+            // 更新倒计时按钮状态
+            function updateCountdownButtons() {
+                // 重置所有按钮样式
+                countdownOffBtn.classList.remove('bg-primary', 'text-white');
+                countdown3sBtn.classList.remove('bg-primary', 'text-white');
+                countdown6sBtn.classList.remove('bg-primary', 'text-white');
+                countdownOffBtn.classList.add('bg-gray-700', 'text-white');
+                countdown3sBtn.classList.add('bg-gray-700', 'text-white');
+                countdown6sBtn.classList.add('bg-gray-700', 'text-white');
+
+                // 设置当前选中按钮样式
+                if (countdownMode === 'off') {
+                    countdownOffBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdownOffBtn.classList.add('bg-white', 'text-primary');
+                } else if (countdownMode === '3s') {
+                    countdown3sBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdown3sBtn.classList.add('bg-primary', 'text-white');
+                } else if (countdownMode === '6s') {
+                    countdown6sBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdown6sBtn.classList.add('bg-primary', 'text-white');
+                }
+            }
+
             // 快门按钮点击事件
             shutterBtn.addEventListener('click', function() {
-                if (countdownToggle.checked) {
+                if (countdownMode !== 'off') {
                     // 启用倒计时
-                    startCountdown();
+                    const time = parseInt(countdownMode);
+                    startCountdown(time);
                 } else {
                     // 直接拍摄
                     capturePhoto();
@@ -260,6 +344,8 @@
 
             // 初始化圆点指示器
             updateCaptureCount();
+            // 初始化倒计时按钮
+            updateCountdownButtons();
 
             // 实现从顶部向下轻滑呼出设置面板
             let startY = 0;
@@ -271,14 +357,13 @@
                 if (startY < 50) { // 只在顶部区域响应
                     const currentY = e.touches[0].clientY;
                     if (currentY - startY > 50) { // 下滑超过50px
-                        settingsPanel.classList.remove('hidden');
+                        settingsPanel.classList.add('active');
                     }
                 }
             }, false);
 
             // 开始倒计时
-            function startCountdown() {
-                const time = parseInt(countdownTime.value);
+            function startCountdown(time) {
                 countdownValue.textContent = time;
                 countdownView.classList.remove('hidden');
 
@@ -301,7 +386,7 @@
                 flashScreen();
 
                 // 模拟快门声
-                if (document.getElementById('shutter-sound-toggle').checked) {
+                if (!shutterSoundToggle.checked) { // 关闭快门声选项，当开关关闭时播放声音
                     playShutterSound();
                 }
 
@@ -382,5 +467,30 @@
             }
         });
     </script>
+        <script>
+            // 快门声开关状态同步
+            const shutterSoundToggle = document.getElementById('shutter-sound-toggle');
+            const onText = document.getElementById('on-text');
+            const offText = document.getElementById('off-text');
+
+            shutterSoundToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    onText.style.opacity = '1';
+                    offText.style.opacity = '0';
+                } else {
+                    onText.style.opacity = '0';
+                    offText.style.opacity = '1';
+                }
+            });
+
+            // 初始化状态
+            if (shutterSoundToggle.checked) {
+                onText.style.opacity = '1';
+                offText.style.opacity = '0';
+            } else {
+                onText.style.opacity = '0';
+                offText.style.opacity = '1';
+            }
+        </script>
 </body>
 </html>
