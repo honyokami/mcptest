@@ -1,7 +1,8 @@
-//  PermissionView.swift
-//  my4cuts
 //
-//  Created by AI Assistant on 2025/9/7.
+//  PermissionView.swift
+//  my4cuts001
+//
+//  Created by 黄炫凱 on 2025/9/4.
 //
 
 import SwiftUI
@@ -12,7 +13,7 @@ import UIKit
 struct PermissionView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @Binding var isActive: Bool
+    @Binding var showPermissionView: Bool
     @State private var navigateToMain = false
 
     var body: some View {
@@ -23,7 +24,7 @@ struct PermissionView: View {
 
             VStack {
                 // 标题
-                Text("需要您的权限")
+                Text("需要您的授权")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
@@ -31,7 +32,7 @@ struct PermissionView: View {
                     .padding(.top, 40)
 
                 // 描述
-                Text("My4Cuts需要访问您的相机和相册以捕捉和编辑照片")
+                Text("My4Cuts需要使用相机和相册来拍摄和制作人生四格照片")
                     .font(.body)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
@@ -48,11 +49,11 @@ struct PermissionView: View {
 
                 // 按钮区域
                 VStack(spacing: 20) {
-                    // 允许按钮
+                    // 好按钮
                     Button(action: {
                         requestPermissions()
                     }) {
-                        Text("允许")
+                        Text("好")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(width: 250, height: 50)
@@ -62,8 +63,17 @@ struct PermissionView: View {
 
                     // 不允许按钮
                     Button(action: {
-                        alertMessage = "没有相机和相册权限，应用将无法正常工作。请在设置中启用权限。"
-                        showAlert = true
+                        // 记录拒绝状态
+                        let cameraPermissionKey = "CameraPermissionDenied"
+                        let photoPermissionKey = "PhotoPermissionDenied"
+                        UserDefaults.standard.set(true, forKey: cameraPermissionKey)
+                        UserDefaults.standard.set(true, forKey: photoPermissionKey)
+                        
+                        // 跳转到主相机页面
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            showPermissionView = false
+                            navigateToMain = true
+                        }
                     }) {
                         Text("不允许")
                             .font(.headline)
@@ -99,32 +109,30 @@ struct PermissionView: View {
 
     // 请求权限
     private func requestPermissions() {
+        // 记录权限状态的键
+        let cameraPermissionKey = "CameraPermissionDenied"
+        let photoPermissionKey = "PhotoPermissionDenied"
+        
         // 先请求相机权限
         AVCaptureDevice.requestAccess(for: .video) { cameraGranted in
-            if cameraGranted {
-                // 相机权限已授予，请求相册权限
-                PHPhotoLibrary.requestAuthorization { photoStatus in
-                    if photoStatus == .authorized {
-                        // 两个权限都已授予
-                        DispatchQueue.main.async {
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                isActive = false
-                                navigateToMain = true
-                            }
-                        }
-                    } else {
-                        // 相册权限未授予
-                        DispatchQueue.main.async {
-                            alertMessage = "没有相册权限，应用将无法保存和访问照片。请在设置中启用权限。"
-                            showAlert = true
-                        }
-                    }
+            // 记录相机权限状态
+            if !cameraGranted {
+                UserDefaults.standard.set(true, forKey: cameraPermissionKey)
+            }
+            
+            // 请求相册权限
+            PHPhotoLibrary.requestAuthorization { photoStatus in
+                // 记录相册权限状态
+                if photoStatus != .authorized {
+                    UserDefaults.standard.set(true, forKey: photoPermissionKey)
                 }
-            } else {
-                // 相机权限未授予
+                
+                // 无论权限是否授予，都跳转到主相机页面
                 DispatchQueue.main.async {
-                    alertMessage = "没有相机权限，应用将无法拍照。请在设置中启用权限。"
-                    showAlert = true
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showPermissionView = false
+                        navigateToMain = true
+                    }
                 }
             }
         }
