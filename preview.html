@@ -85,6 +85,9 @@
 
         <!-- 顶部状态栏 -->
         <div class="absolute top-0 left-0 right-0 flex justify-between p-6 text-white text-2xl">
+            <button id="back-btn" class="bg-white bg-opacity-20 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-30 transition-all duration-300 mr-4">
+                返回
+            </button>
             <button id="settings-btn" class="hover:text-gray-300 transition-colors duration-300">
                 <i class="fa fa-cog" aria-hidden="true"></i>
             </button>
@@ -106,10 +109,10 @@
             <div class="w-12"></div> <!-- 占位元素，保持对称 -->
         </div>
 
-        <!-- 返回按钮 -->
-        <button id="back-btn" class="absolute top-6 left-6 bg-white bg-opacity-20 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-30 transition-all duration-300">
-            返回
-        </button>
+        <!-- 返回按钮 (已移除，合并到顶部状态栏) -->
+        // <button id="back-btn" class="absolute top-6 left-6 bg-white bg-opacity-20 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-30 transition-all duration-300">
+        //     返回
+        // </button>
 
         <!-- 倒计时视图 (默认隐藏) -->
         <div id="countdown-view" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
