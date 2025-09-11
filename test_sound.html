@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>声音测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #log {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>声音测试</h1>
+    <div class="controls">
+        <button onclick="playSound()">播放声音 (文件)</button>
+        <button onclick="playBase64Sound()">播放声音 (Base64)</button>
+        <button onclick="checkSoundFile()">检查声音文件</button>
+        <button onclick="clearLog()">清除日志</button>
+    </div>
+    <div id="log"></div>
+
+    <script>
+        // 音频对象缓存
+        let audioCache = {};
+        // 防止重复播放的标志
+        let isPlaying = false;
+
+        // 日志函数
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.textContent += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // 播放声音文件
+        function playSound() {
+            if (isPlaying) {
+                log("正在播放中，请先停止当前播放");
+                return;
+            }
+
+            try {
+                // 创建新的音频对象
+                const audio = new Audio('shutter_sound.mp3');
+
+                audio.oncanplaythrough = function() {
+                    isPlaying = true;
+                    log("开始播放声音文件");
+                    audio.play();
+                };
+
+                audio.onended = function() {
+                    isPlaying = false;
+                    log("声音文件播放完毕");
+                };
+
+                audio.onerror = function(error) {
+                    isPlaying = false;
+                    log(`播放错误: ${error.message}`);
+                };
+            } catch (e) {
+                isPlaying = false;
+                log(`播放异常: ${e.message}`);
+            }
+        }
+
+        // 播放Base64声音
+        function playBase64Sound() {
+            if (isPlaying) {
+                log("正在播放中，请先停止当前播放");
+                return;
+            }
+
+            try {
+                // 这里只是示例，实际项目中应该有正确的Base64编码声音
+                const base64Sound = 'data:audio/mp3;base64,...'; // 实际的Base64编码
+                const audio = new Audio(base64Sound);
+
+                audio.oncanplaythrough = function() {
+                    isPlaying = true;
+                    audio.play();
+                };
+
+                audio.onended = function() {
+                    isPlaying = false;
+                    log("Base64声音播放完毕");
+                };
+
+                audio.onerror = function(error) {
+                    isPlaying = false;
+                    log(`播放错误: ${error.message}`);
+                };
+            } catch (e) {
+                isPlaying = false;
+                log(`播放异常: ${e.message}`);
+            }
+        }
+
+        // 检查声音文件
+        function checkSoundFile() {
+            log("检查声音文件...");
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('HEAD', 'shutter_sound.mp3', true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        log(`声音文件存在，大小: ${xhr.getResponseHeader('Content-Length')} 字节`);
+                    } else {
+                        log(`无法找到声音文件，状态码: ${xhr.status}`);
+                    }
+                };
+                xhr.onerror = function() {
+                    log("检查失败: 网络错误");
+                };
+                xhr.send();
+            } catch (e) {
+                log(`检查异常: ${e.message}`);
+            }
+        }
+
+        // 清除日志
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+            log("日志已清除");
+        }
+    </script>
+</body>
+</html>
