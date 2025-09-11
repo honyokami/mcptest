@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#f0f0f0"/>
+  <circle cx="960" cy="540" r="300" fill="#ffffff" stroke="#cccccc" stroke-width="10"/>
+  <circle cx="960" cy="540" r="200" fill="#e0e0e0"/>
+  <circle cx="960" cy="540" r="50" fill="#000000"/>
+  <rect x="860" y="720" width="200" height="100" rx="50" fill="#ffffff" stroke="#cccccc" stroke-width="10"/>
+  <text x="960" y="400" font-family="Arial, sans-serif" font-size="48" text-anchor="middle" fill="#666666">相机预览区域</text>
+  <text x="960" y="460" font-family="Arial, sans-serif" font-size="32" text-anchor="middle" fill="#999999">点击或拍照以获取图片</text>
+</svg>
