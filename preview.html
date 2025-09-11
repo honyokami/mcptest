@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My4Cuts - 启动页预览</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000000',
+                        secondary: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .splash-animation {
+                animation: fadeIn 0.8s ease-in-out forwards;
+            }
+            .permission-animation {
+                animation: fadeIn 0.5s ease-in-out forwards;
+            }
+            .glass-effect {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-100%);
+            }
+        }
+
+        .settings-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .settings-panel.active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-white font-inter overflow-hidden h-screen flex items-center justify-center">
+    <!-- 启动页 -->
+    <div id="splash-screen" class="flex flex-col items-center justify-center splash-animation opacity-0">
+        <div class="text-primary text-8xl mb-6">
+            <i class="fa fa-camera" aria-hidden="true"></i>
+        </div>
+        <h1 class="text-primary text-5xl font-bold">my4cuts</h1>
+    </div>
+
+    <!-- 权限请求页 -->
+    <div id="permission-view" class="hidden flex flex-col items-center justify-center permission-animation opacity-0 w-full max-w-md px-6">
+        <h2 class="text-primary text-3xl font-bold mb-6 mt-10">需要您的权限</h2>
+        <p class="text-gray-600 text-center mb-10">My4Cuts需要访问您的相机和相册以捕捉和编辑照片</p>
+        <div class="text-primary text-7xl mb-10">
+            <i class="fa fa-camera" aria-hidden="true"></i>
+        </div>
+        <div class="flex flex-col space-y-4 w-full">
+            <button id="allow-btn" class="bg-primary text-white py-4 px-6 rounded-full text-lg font-medium hover:bg-opacity-90 transition-all duration-300">
+                允许
+            </button>
+            <button id="deny-btn" class="bg-white text-primary border-2 border-primary py-4 px-6 rounded-full text-lg font-medium hover:bg-gray-100 transition-all duration-300">
+                不允许
+            </button>
+        </div>
+    </div>
+
+    <!-- 主内容页 - 相机界面 -->
+    <div id="content-view" class="hidden relative permission-animation opacity-0 w-full h-full bg-black">
+        <!-- 相机预览区域 -->
+        <div id="camera-preview" class="absolute inset-0 flex items-center justify-center">
+            <img src="https://picsum.photos/1920/1080" alt="相机预览" class="w-full h-full object-cover opacity-90">
+        </div>
+
+        <!-- 品牌标识 -->
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white text-opacity-40 text-xs">my4cuts</div>
+
+        <!-- 顶部状态栏 -->
+        <div class="absolute top-0 left-0 right-0 flex justify-between items-center p-6 text-white text-2xl">
+            <div class="w-10 h-10 flex items-center justify-center">
+                <button id="back-btn" class="hover:text-gray-300 transition-colors duration-300">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="dot-indicator" class="flex space-x-2 mx-auto">
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+                <span class="block w-3 h-3 rounded-full bg-white opacity-40 transition-opacity duration-300"></span>
+            </div>
+            <div class="w-10 h-10 flex items-center justify-center">
+                <button id="settings-btn" class="hover:text-gray-300 transition-colors duration-300">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="absolute bottom-0 left-0 right-0 flex justify-between items-center p-6">
+            <button id="album-btn" class="text-white text-3xl hover:text-gray-300 transition-colors duration-300">
+                <i class="fa fa-image" aria-hidden="true"></i>
+            </button>
+            <button id="shutter-btn" class="w-20 h-20 rounded-full bg-white flex items-center justify-center hover:bg-gray-200 transition-colors duration-300">
+                <div class="w-16 h-16 rounded-full bg-black"></div>
+            </button>
+            <button id="switch-camera-btn" class="text-white text-3xl hover:text-gray-300 transition-colors duration-300">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <!-- 返回按钮已移除，顶部状态栏已重构为对称布局 -->
+
+        <!-- 倒计时视图 (默认隐藏) -->
+        <div id="countdown-view" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+            <span id="countdown-value" class="text-white text-9xl font-bold">3</span>
+        </div>
+
+        <!-- 设置面板 (顶部下滑毛玻璃效果半透明面板，实现倒计时循环切换选项，并修改按钮文本) -->
+        <div id="settings-panel" class="settings-panel absolute top-0 left-0 right-0 glass-effect border-b border-white border-opacity-20 flex flex-col p-6 text-white z-50 max-h-[80vh] overflow-y-auto">
+            <!-- 拖动指示器 -->
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-1.5 bg-white bg-opacity-50 rounded-full"></div>
+            </div>
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold">设置</h3>
+                <button id="close-settings-btn" class="bg-primary hover:bg-opacity-80 text-white py-2 px-4 rounded-full text-sm font-medium transition-all duration-300">
+                    完成
+                </button>
+            </div>
+            <div class="flex flex-col space-y-8">
+                <div class="flex flex-col space-y-2">
+                    <span class="text-lg">倒计时</span>
+                    <div class="flex space-x-3">
+                        <button id="countdown-off-btn" class="bg-white text-primary py-2 px-4 rounded-full text-sm font-medium hover:bg-opacity-90 transition-all duration-300">
+                            关闭
+                        </button>
+                        <button id="countdown-3s-btn" class="bg-gray-700 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-primary transition-all duration-300">
+                            3s
+                        </button>
+                        <button id="countdown-6s-btn" class="bg-gray-700 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-primary transition-all duration-300">
+                            6s
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-lg">关闭快门声</span>
+                    <div class="flex items-center space-x-3">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="shutter-sound-toggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                        <div class="relative w-12 h-6 flex items-center justify-center">
+                            <span class="text-xs font-medium transition-opacity duration-300 peer-checked:opacity-0 absolute left-0 right-0 text-center" id="off-text">OFF</span>
+                            <span class="text-xs font-medium transition-opacity duration-300 opacity-0 peer-checked:opacity-100 absolute left-0 right-0 text-center" id="on-text">ON</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 启动页逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const splashScreen = document.getElementById('splash-screen');
+            const permissionView = document.getElementById('permission-view');
+            const contentView = document.getElementById('content-view');
+            const allowBtn = document.getElementById('allow-btn');
+            const denyBtn = document.getElementById('deny-btn');
+            const backBtn = document.getElementById('back-btn');
+            // 返回按钮已删除，不再引用
+
+            // 相机界面元素
+            const settingsBtn = document.getElementById('settings-btn');
+            const switchCameraBtn = document.getElementById('switch-camera-btn');
+            const albumBtn = document.getElementById('album-btn');
+            const shutterBtn = document.getElementById('shutter-btn');
+            const countdownView = document.getElementById('countdown-view');
+            const countdownValue = document.getElementById('countdown-value');
+            const captureCount = document.getElementById('capture-count');
+            const settingsPanel = document.getElementById('settings-panel');
+            const closeSettingsBtn = document.getElementById('close-settings-btn');
+            const cameraPreview = document.getElementById('camera-preview');
+            const previewImage = cameraPreview.querySelector('img');
+            const shutterSoundToggle = document.getElementById('shutter-sound-toggle');
+            const countdownOffBtn = document.getElementById('countdown-off-btn');
+            const countdown3sBtn = document.getElementById('countdown-3s-btn');
+            const countdown6sBtn = document.getElementById('countdown-6s-btn');
+
+            // 状态变量
+            let currentCount = 0;
+            let isFrontCamera = false;
+            let countdownInterval;
+            let countdownMode = 'off'; // 'off', '3s', '6s'
+            let hasUserInteracted = false; // 标记用户是否已与页面交互
+            let interactionPrompt = null; // 交互提示元素
+
+            // 2秒后自动跳转到权限请求页，添加平滑过渡
+            setTimeout(() => {
+                splashScreen.style.transition = 'opacity 0.8s ease-out';
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.classList.add('hidden');
+                    permissionView.classList.remove('hidden');
+                    permissionView.classList.remove('opacity-0');
+                    permissionView.classList.add('permission-animation');
+                }, 800);
+            }, 2000);
+
+            // 允许按钮点击事件
+            allowBtn.addEventListener('click', function() {
+                permissionView.classList.add('hidden');
+                contentView.classList.remove('hidden');
+                contentView.classList.remove('opacity-0');
+                contentView.classList.add('permission-animation');
+            });
+
+            // 不允许按钮点击事件
+            denyBtn.addEventListener('click', function() {
+                alert('没有相机和相册权限，应用将无法正常工作。请在设置中启用权限。');
+            });
+
+            // 返回按钮点击事件
+            backBtn.addEventListener('click', function() {
+                contentView.classList.add('hidden');
+                splashScreen.classList.remove('hidden');
+                splashScreen.classList.remove('opacity-0');
+                splashScreen.classList.add('splash-animation');
+
+                // 重置计数
+                currentCount = 0;
+                updateCaptureCount();
+            });
+
+            // 设置按钮点击事件
+            settingsBtn.addEventListener('click', function() {
+                settingsPanel.classList.add('active');
+            });
+
+            // 关闭设置按钮点击事件
+            closeSettingsBtn.addEventListener('click', function() {
+                settingsPanel.classList.remove('active');
+            });
+
+            // 切换相机按钮点击事件
+            switchCameraBtn.addEventListener('click', function() {
+                isFrontCamera = !isFrontCamera;
+                // 切换预览图像 (模拟前后摄像头切换)
+                if (isFrontCamera) {
+                    previewImage.src = 'https://picsum.photos/1920/1080?random=1';
+                } else {
+                    previewImage.src = 'https://picsum.photos/1920/1080?random=2';
+                }
+            });
+
+            // 相册按钮点击事件
+            albumBtn.addEventListener('click', function() {
+                alert('相册功能将在这里实现');
+            });
+
+            // 倒计时按钮点击事件
+            countdownOffBtn.addEventListener('click', function() {
+                countdownMode = 'off';
+                updateCountdownButtons();
+            });
+
+            countdown3sBtn.addEventListener('click', function() {
+                countdownMode = '3s';
+                updateCountdownButtons();
+            });
+
+            countdown6sBtn.addEventListener('click', function() {
+                countdownMode = '6s';
+                updateCountdownButtons();
+            });
+
+            // 更新倒计时按钮状态
+            function updateCountdownButtons() {
+                // 重置所有按钮样式
+                countdownOffBtn.classList.remove('bg-primary', 'text-white');
+                countdown3sBtn.classList.remove('bg-primary', 'text-white');
+                countdown6sBtn.classList.remove('bg-primary', 'text-white');
+                countdownOffBtn.classList.add('bg-gray-700', 'text-white');
+                countdown3sBtn.classList.add('bg-gray-700', 'text-white');
+                countdown6sBtn.classList.add('bg-gray-700', 'text-white');
+
+                // 设置当前选中按钮样式
+                if (countdownMode === 'off') {
+                    countdownOffBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdownOffBtn.classList.add('bg-white', 'text-primary');
+                } else if (countdownMode === '3s') {
+                    countdown3sBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdown3sBtn.classList.add('bg-primary', 'text-white');
+                } else if (countdownMode === '6s') {
+                    countdown6sBtn.classList.remove('bg-gray-700', 'text-white');
+                    countdown6sBtn.classList.add('bg-primary', 'text-white');
+                }
+            }
+
+            // 快门按钮点击事件
+            shutterBtn.addEventListener('click', function() {
+                if (countdownMode !== 'off') {
+                    // 启用倒计时
+                    const time = parseInt(countdownMode);
+                    startCountdown(time);
+                } else {
+                    // 直接拍摄
+                    capturePhoto();
+                }
+            });
+
+            // 获取圆点指示器元素
+            const dotIndicator = document.getElementById('dot-indicator');
+            // 初始化圆点指示器
+            updateCaptureCount();
+            // 初始化倒计时按钮
+            updateCountdownButtons();
+
+            // 实现从顶部向下轻滑呼出设置面板
+            let startY = 0;
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+                // 标记用户已交互
+                hasUserInteracted = true;
+                // 如果有交互提示，移除它
+                if (interactionPrompt) {
+                    interactionPrompt.remove();
+                    interactionPrompt = null;
+                }
+            }, false);
+
+            // 监听点击事件，标记用户已交互
+            document.addEventListener('click', function() {
+                hasUserInteracted = true;
+                // 如果有交互提示，移除它
+                if (interactionPrompt) {
+                    interactionPrompt.remove();
+                    interactionPrompt = null;
+                }
+            }, false);
+
+            document.addEventListener('touchmove', function(e) {
+                if (startY < 50) { // 只在顶部区域响应
+                    const currentY = e.touches[0].clientY;
+                    if (currentY - startY > 50) { // 下滑超过50px
+                        settingsPanel.classList.add('active');
+                    }
+                }
+            }, false);
+
+            // 开始倒计时
+            function startCountdown(time) {
+                countdownValue.textContent = time;
+                countdownView.classList.remove('hidden');
+
+                let currentTime = time;
+                countdownInterval = setInterval(() => {
+                    currentTime--;
+                    countdownValue.textContent = currentTime;
+
+                    if (currentTime <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownView.classList.add('hidden');
+                        capturePhoto();
+                    }
+                }, 1000);
+            }
+
+            // 拍摄照片
+            function capturePhoto() {
+                // 播放快门声（如果启用）
+                if (shutterSoundToggle.checked) {
+                    // 播放实际快门声
+                    try {
+                        // 检查声音文件路径是否正确
+                        console.log('尝试播放快门声:', '/sounds/dispense.wav');
+                        const shutterSound = new Audio('/sounds/dispense.wav');
+                        
+                        // 预加载声音
+                        shutterSound.load();
+                        
+                        // 检查是否已获得用户交互
+                        if (!hasUserInteracted) {
+                            // 显示交互提示
+                            showInteractionPrompt();
+                            return;
+                        }
+                        
+                        // 监听声音加载完成事件
+                        shutterSound.oncanplaythrough = function() {
+                            console.log('快门声已加载完成，准备播放');
+                            shutterSound.play().catch(e => {
+                                console.error('无法播放快门声:', e);
+                                // 检查是否是自动播放策略导致的问题
+                                if (e.name === 'NotAllowedError' || e.name === 'NotSupportedError') {
+                                    console.warn('可能是浏览器自动播放策略阻止了声音播放，请尝试与页面交互后再拍摄');
+                                    showInteractionPrompt();
+                                }
+                                // 提供备选方案 - 使用Base64编码的简单声音
+                                const fallbackSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAA');
+                                fallbackSound.play().catch(fallbackError => {
+                                    console.error('备选声音也无法播放:', fallbackError);
+                                });
+                            });
+                        };
+                        
+                        // 监听加载错误事件
+                        shutterSound.onerror = function(event) {
+                            console.error('加载快门声失败:', event.error);
+                            console.error('声音文件URL:', shutterSound.src);
+                            // 检查文件是否存在
+                            fetch(shutterSound.src)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                                    }
+                                    return response.blob();
+                                })
+                                .then(blob => {
+                                    console.log('文件存在，大小:', blob.size, '字节');
+                                    // 尝试使用Blob URL播放
+                                    const blobUrl = URL.createObjectURL(blob);
+                                    const blobSound = new Audio(blobUrl);
+                                    blobSound.play().catch(blobError => {
+                                        console.error('使用Blob URL播放失败:', blobError);
+                                    });
+                                })
+                                .catch(fetchError => {
+                                    console.error('检查文件存在性失败:', fetchError);
+                                });
+                            
+                            // 提供备选方案 - 使用Base64编码的简单声音
+                            const fallbackSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAA');
+                            fallbackSound.play().catch(fallbackError => {
+                                console.error('备选声音也无法播放:', fallbackError);
+                            });
+                        };
+                    } catch (audioError) {
+                        console.error('创建音频对象失败:', audioError);
+                    }
+                } else {
+                    // 快门声已关闭
+                    console.log('快门声已关闭');
+                }
+
+                // 模拟拍照闪光效果
+                const flash = document.createElement('div');
+                flash.className = 'fixed inset-0 bg-white opacity-0 z-50';
+                document.body.appendChild(flash);
+                flash.style.transition = 'opacity 0.3s ease-in-out';
+                flash.style.opacity = '1';
+
+                setTimeout(() => {
+                    flash.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(flash);
+                    }, 300);
+                }, 200);
+
+                // 更新计数
+                currentCount++;
+                if (currentCount > 4) {
+                    currentCount = 0;
+                }
+                updateCaptureCount();
+            }
+
+            // 显示交互提示
+            function showInteractionPrompt() {
+                // 如果已经有提示，先移除
+                if (interactionPrompt) {
+                    interactionPrompt.remove();
+                }
+                
+                // 创建提示元素
+                interactionPrompt = document.createElement('div');
+                interactionPrompt.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-6 py-3 rounded-full z-50 transition-opacity duration-300';
+                interactionPrompt.textContent = '点击屏幕任意位置后再拍摄以启用声音';
+                
+                // 添加到页面
+                document.body.appendChild(interactionPrompt);
+                
+                // 3秒后自动隐藏
+                setTimeout(() => {
+                    interactionPrompt.style.opacity = '0';
+                    setTimeout(() => {
+                        if (interactionPrompt) {
+                            interactionPrompt.remove();
+                            interactionPrompt = null;
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // 更新拍摄计数指示器
+            function updateCaptureCount() {
+                const dots = dotIndicator.querySelectorAll('span');
+                dots.forEach((dot, index) => {
+                    // 重置所有样式
+                    dot.classList.remove('opacity-40', 'opacity-100', 'bg-white', 'bg-black', 'ring-2', 'ring-white');
+                    
+                    if (index < currentCount) {
+                        // 已拍摄的点 - 实心白色
+                        dot.classList.add('bg-white', 'opacity-100');
+                    } else if (index === currentCount) {
+                        // 当前点 - 实心白色带边框
+                        dot.classList.add('bg-white', 'opacity-100', 'ring-2', 'ring-white');
+                    } else {
+                        // 未拍摄的点 - 白色半透明
+                        dot.classList.add('bg-white', 'opacity-40');
+                    }
+                });
+            }
+
+            // 快门声音开关切换
+            shutterSoundToggle.addEventListener('change', function() {
+                const offText = document.getElementById('off-text');
+                const onText = document.getElementById('on-text');
+
+                if (this.checked) {
+                    offText.classList.add('opacity-0');
+                    onText.classList.remove('opacity-0');
+                } else {
+                    offText.classList.remove('opacity-0');
+                    onText.classList.add('opacity-0');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
